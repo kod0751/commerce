@@ -44,13 +44,16 @@ export default function Home() {
                 {JSON.stringify(item)}
                 {item.properties && 
                 Object.entries(item.properties).map(([key, value]) => (
-                  <button key={key} onClick={() => {
-                    fetch(
-                      `/api/get-detail?pageId=${item.id}&propertyId=${value.id}`
+                  <button 
+                    key={key} 
+                    onClick={() => {
+                      fetch(
+                        `/api/get-detail?pageId=${item.id}&propertyId=${value.id}`
                       )
-                      .then(res => res.json())
-                      .then(data => alert(JSON.stringify(data.detail)))
-                    }}>
+                        .then(res => res.json())
+                        .then(data => alert(JSON.stringify(data.detail)))
+                    }}
+                  >
                     {key}
                   </button>
                 ))}
