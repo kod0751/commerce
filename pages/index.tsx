@@ -5,7 +5,7 @@ import styles from '../styles/Home.module.css'
 
 export default function Home() {
   // const [products, setProducts] = useState<{ id: string; properties: { id: string }[]}[]>([]);
-  const [products, setProducts] = useState<{ id: string; name: string}[]>([]);
+  const [products, setProducts] = useState<{ id: string; name: string; createdAt: string}[]>([]);
   // useEffect(()=> {
   //   fetch('/api/get-items')
   //   .then(res => res.json())
@@ -47,7 +47,7 @@ export default function Home() {
         <div>
           <p>Product List</p>
           {products && products.map((item) => (
-            <div key={item.id}>{item.name}</div>
+            <div key={item.id}>{item.name}<span>{item.createdAt}</span></div>
           ))}
           {/* {products &&
             products.map((item) => (
