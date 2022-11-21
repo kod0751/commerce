@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://commerce-di.vercel.app
+
+# Sitemaps
+Sitemap: https://commerce-di.vercel.app/sitemap.xml
