@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import styles from '../styles/Home.module.css';
 import { css } from '@emotion/react';
+import Button from 'components/Button';
 
 export default function Home() {
   // const [products, setProducts] = useState<{ id: string; properties: { id: string }[]}[]>([]);
@@ -64,6 +65,8 @@ export default function Home() {
         >
           Add jacket
         </button>
+
+        <Button onClick={handleClick}>Add jacket2</Button>
 
         <div>
           <p>Product List</p>
