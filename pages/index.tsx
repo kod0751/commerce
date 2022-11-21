@@ -1,7 +1,10 @@
+/** @jsxImportSource @emotion/react */
+
 import Head from 'next/head';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import styles from '../styles/Home.module.css';
+import { css } from '@emotion/react';
 
 export default function Home() {
   // const [products, setProducts] = useState<{ id: string; properties: { id: string }[]}[]>([]);
@@ -51,7 +54,16 @@ export default function Home() {
           type="text"
           placeholder="name"
         />
-        <button onClick={handleClick}>Add jacket</button>
+        <button
+          css={css`
+            background-color: skyblue;
+            padding: 16px;
+            border-radius: 8px;
+          `}
+          onClick={handleClick}
+        >
+          Add jacket
+        </button>
 
         <div>
           <p>Product List</p>
