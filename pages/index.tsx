@@ -1,32 +1,36 @@
-import Head from 'next/head'
-import Image from 'next/image'
-import { useEffect, useRef, useState } from 'react'
-import styles from '../styles/Home.module.css'
+import Head from 'next/head';
+import Image from 'next/image';
+import { useEffect, useRef, useState } from 'react';
+import styles from '../styles/Home.module.css';
 
 export default function Home() {
   // const [products, setProducts] = useState<{ id: string; properties: { id: string }[]}[]>([]);
-  const [products, setProducts] = useState<{ id: string; name: string; createdAt: string}[]>([]);
+  const [products, setProducts] = useState<
+    { id: string; name: string; createdAt: string }[]
+  >([]);
   // useEffect(()=> {
   //   fetch('/api/get-items')
   //   .then(res => res.json())
   //   .then(data => setProducts(data.items))
   // }, []);
 
-  useEffect(()=> {
+  useEffect(() => {
     fetch('/api/get-products')
-      .then(res => res.json())
-      .then(data => setProducts(data.items))
+      .then((res) => res.json())
+      .then((data) => setProducts(data.items));
   }, []);
-  
-  const inputRef = useRef<HTMLInputElement>(null)
+
+  const inputRef = useRef<HTMLInputElement>(null);
   const handleClick = () => {
     if (inputRef.current == null || inputRef.current.value === '') {
-      alert('name을 넣어주세요.')
-      return
+      alert('name을 넣어주세요.');
+      return;
     }
 
-    fetch(`/api/add-item?name=${inputRef.current.value}`).then(res => res.json()).then(data => alert(data.message))
-  }
+    fetch(`/api/add-item?name=${inputRef.current.value}`)
+      .then((res) => res.json())
+      .then((data) => alert(data.message));
+  };
 
   return (
     <div className={styles.container}>
@@ -41,14 +45,23 @@ export default function Home() {
           Welcome to <a href="https://nextjs.org">Next.js!</a>
         </h1>
 
-        <input className="placeholder:italic placeholder:text-slate-400 block bg-white w-96 border border-slate-300 rounded-md py-2 pl-3 pr-3 shadow-sm focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 sm:text-sm" ref={inputRef} type="text" placeholder='name' />
+        <input
+          className="placeholder:italic placeholder:text-slate-400 block bg-white w-96 border border-slate-300 rounded-md py-2 pl-3 pr-3 shadow-sm focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 sm:text-sm"
+          ref={inputRef}
+          type="text"
+          placeholder="name"
+        />
         <button onClick={handleClick}>Add jacket</button>
 
         <div>
           <p>Product List</p>
-          {products && products.map((item) => (
-            <div key={item.id}>{item.name}<span>{item.createdAt}</span></div>
-          ))}
+          {products &&
+            products.map((item) => (
+              <div key={item.id}>
+                {item.name}
+                <span>{item.createdAt}</span>
+              </div>
+            ))}
           {/* {products &&
             products.map((item) => (
               <div key={item.id}>
@@ -88,5 +101,5 @@ export default function Home() {
         </a>
       </footer>
     </div>
-  )
+  );
 }
