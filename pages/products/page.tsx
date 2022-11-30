@@ -1,8 +1,8 @@
 import { categories, products } from '@prisma/client';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import { Pagination, SegmentedControl } from '@mantine/core';
-import { CATEGORY_MAP, TAKE } from 'constants/products';
+import { Pagination, SegmentedControl, Select } from '@mantine/core';
+import { CATEGORY_MAP, FILTERS, TAKE } from 'constants/products';
 
 export default function Products() {
   const [activePage, setPage] = useState(1);
@@ -10,6 +10,7 @@ export default function Products() {
   const [categories, setCategories] = useState<categories[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('-1');
   const [products, setProducts] = useState<products[]>([]);
+  const [selectedFilter, setFilter] = useState<string | null>(FILTERS[0].value);
 
   useEffect(() => {
     fetch('/api/get-categories')
@@ -26,14 +27,17 @@ export default function Products() {
   useEffect(() => {
     const skip = TAKE * (activePage - 1);
     fetch(
-      `/api/get-products?skip=${skip}&take=${TAKE}&category=${selectedCategory}`
+      `/api/get-products?skip=${skip}&take=${TAKE}&category=${selectedCategory}&orderBy=${selectedFilter}`
     )
       .then((res) => res.json())
       .then((data) => setProducts(data.items));
-  }, [activePage, selectedCategory]);
+  }, [activePage, selectedCategory, selectedFilter]);
 
   return (
     <div className="px-36 mt-36 mb-36">
+      <div className="mb-4">
+        <Select value={selectedFilter} onChange={setFilter} data={FILTERS} />
+      </div>
       {categories && (
         <div className="mb-4">
           <SegmentedControl
