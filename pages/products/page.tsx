@@ -9,8 +9,8 @@ import { useQuery } from '@tanstack/react-query';
 
 export default function Products() {
   const [activePage, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
-  const [categories, setCategories] = useState<categories[]>([]);
+  // const [total, setTotal] = useState(0);
+  // const [categories, setCategories] = useState<categories[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('-1');
   // const [products, setProducts] = useState<products[]>([]);
   const [selectedFilter, setFilter] = useState<string | null>(FILTERS[0].value);
@@ -18,19 +18,43 @@ export default function Products() {
 
   const debouncedKeyword = useDebounce<string>(keyword);
 
-  useEffect(() => {
-    fetch('/api/get-categories')
-      .then((res) => res.json())
-      .then((data) => setCategories(data.items));
-  }, []);
+  // useEffect(() => {
+  //   fetch('/api/get-categories')
+  //     .then((res) => res.json())
+  //     .then((data) => setCategories(data.items));
+  // }, []);
 
-  useEffect(() => {
-    fetch(
-      `/api/get-products-count?category=${selectedCategory}&contains=${debouncedKeyword}`
-    )
-      .then((res) => res.json())
-      .then((data) => setTotal(Math.ceil(data.items / TAKE)));
-  }, [selectedCategory, debouncedKeyword]);
+  const { data: categories } = useQuery<
+    { items: categories[] },
+    unknown,
+    categories[]
+  >(
+    ['/api/get-categories'],
+    () => fetch('/api/get-categories').then((res) => res.json()),
+    {
+      select: (data) => data.items,
+    }
+  );
+
+  // useEffect(() => {
+  //   fetch(
+  //     `/api/get-products-count?category=${selectedCategory}&contains=${debouncedKeyword}`
+  //   )
+  //     .then((res) => res.json())
+  //     .then((data) => setTotal(Math.ceil(data.items / TAKE)));
+  // }, [selectedCategory, debouncedKeyword]);
+
+  const { data: total } = useQuery(
+    [
+      `/api/get-products-count?category=${selectedCategory}&contains=${debouncedKeyword}`,
+    ],
+    () =>
+      fetch(
+        `/api/get-products-count?category=${selectedCategory}&contains=${debouncedKeyword}`
+      )
+        .then((res) => res.json())
+        .then((data) => Math.ceil(data.items / TAKE))
+  );
 
   // useEffect(() => {
   //   const skip = TAKE * (activePage - 1);
@@ -120,13 +144,14 @@ export default function Products() {
         </div>
       )}
       <div className="w-full flex mt-5">
-        <Pagination
-          className="m-auto"
-          page={activePage}
-          onChange={setPage}
-          total={total}
-        />
-        ;
+        {total && (
+          <Pagination
+            className="m-auto"
+            page={activePage}
+            onChange={setPage}
+            total={total}
+          />
+        )}
       </div>
     </div>
   );
