@@ -1,8 +1,9 @@
 import { categories, products } from '@prisma/client';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
-import { Pagination, SegmentedControl, Select } from '@mantine/core';
+import React, { useEffect, useState } from 'react';
+import { Input, Pagination, SegmentedControl, Select } from '@mantine/core';
 import { CATEGORY_MAP, FILTERS, TAKE } from 'constants/products';
+import { IconSearch } from '@tabler/icons';
 
 export default function Products() {
   const [activePage, setPage] = useState(1);
@@ -11,6 +12,7 @@ export default function Products() {
   const [selectedCategory, setSelectedCategory] = useState<string>('-1');
   const [products, setProducts] = useState<products[]>([]);
   const [selectedFilter, setFilter] = useState<string | null>(FILTERS[0].value);
+  const [keyword, setKeyword] = useState('');
 
   useEffect(() => {
     fetch('/api/get-categories')
@@ -19,22 +21,36 @@ export default function Products() {
   }, []);
 
   useEffect(() => {
-    fetch(`/api/get-products-count?category=${selectedCategory}`)
+    fetch(
+      `/api/get-products-count?category=${selectedCategory}&contains=${keyword}`
+    )
       .then((res) => res.json())
       .then((data) => setTotal(Math.ceil(data.items / TAKE)));
-  }, [selectedCategory]);
+  }, [selectedCategory, keyword]);
 
   useEffect(() => {
     const skip = TAKE * (activePage - 1);
     fetch(
-      `/api/get-products?skip=${skip}&take=${TAKE}&category=${selectedCategory}&orderBy=${selectedFilter}`
+      `/api/get-products?skip=${skip}&take=${TAKE}&category=${selectedCategory}&orderBy=${selectedFilter}&contains=${keyword}`
     )
       .then((res) => res.json())
       .then((data) => setProducts(data.items));
-  }, [activePage, selectedCategory, selectedFilter]);
+  }, [activePage, selectedCategory, selectedFilter, keyword]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setKeyword(e.target.value);
+  };
 
   return (
     <div className="px-36 mt-36 mb-36">
+      <div className="mb-4">
+        <Input
+          icon={<IconSearch />}
+          placeholder="Your email"
+          value={keyword}
+          onChange={handleChange}
+        />
+      </div>
       <div className="mb-4">
         <Select value={selectedFilter} onChange={setFilter} data={FILTERS} />
       </div>
