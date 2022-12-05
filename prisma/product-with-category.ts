@@ -22,7 +22,7 @@ const sneakers = [
       '{"blocks":[{"key":"fngrr","text":"This is a Sneakers!!","type":"unstyled","depth":0,"inlineStyleRanges":[{"offset":10,"length":9,"style":"BOLD"}],"entityRanges":[],"data":{}}],"entityMap":{}}',
     category_id: 1,
     image_url:
-      'https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMDAyMTVfMjMz%2FMDAxNTgxNzU2NzAzMTEy.SVs67Z6Ggz1r2PvYDKSsEaTqzPw0hipkiTVwjgywAEwg.ipKcsWfxDi6P6vr8RxVncRi3OW6X5Bh38szOxENP7i8g.JPEG.dh5246%2FIMG_6369.JPG&type=a340',
+      'https://search.pstatic.net/common/?src=http%3A%2F%2Fshop1.phinf.naver.net%2F20220925_100%2F1664070136497imIlj_JPEG%2F65205970317930798_1684824693.jpeg&type=a340',
     price: getRandom(30000, 10000),
   },
   {
@@ -94,7 +94,7 @@ const sneakers = [
       '{"blocks":[{"key":"fngrr","text":"This is a Sneakers!!","type":"unstyled","depth":0,"inlineStyleRanges":[{"offset":10,"length":9,"style":"BOLD"}],"entityRanges":[],"data":{}}],"entityMap":{}}',
     category_id: 1,
     image_url:
-      'https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA4MDVfMjkg%2FMDAxNjU5Njg1Mjc2Mzkx.4LlBvZ0ILd7IjcjI7P9TRQ8-kJbxVGydyO844EEijF8g.Lp2ZzmXagq0AcTSR8CUusEYOSRMumebCs0mOre7MJocg.JPEG.adiori%2F0000.jpg&type=a340',
+      'https://search.pstatic.net/common/?src=http%3A%2F%2Fshopping.phinf.naver.net%2Fmain_3603522%2F36035227803.20221124060014.jpg&type=a340',
     price: getRandom(30000, 10000),
   },
 ];
@@ -106,7 +106,7 @@ const tShirt = [
       '{"blocks":[{"key":"fngrr","text":"This is a T-Shirt!!","type":"unstyled","depth":0,"inlineStyleRanges":[{"offset":10,"length":9,"style":"BOLD"}],"entityRanges":[],"data":{}}],"entityMap":{}}',
     category_id: 2,
     image_url:
-      'https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMDExMzBfMTc3%2FMDAxNjA2NzM2NjU5MTcx.2xmzErpWSojGc15kU3MKvGoUUD6_YHdjF-LtdeyIdpwg.QmGOwcYPnY1uubwU1meHDifXYyqDoPXLyh34a0F0IN8g.JPEG.9807dhyuo%2FMSA4TR3901CH1_H.jpg&type=a340',
+      'https://search.pstatic.net/common/?src=http%3A%2F%2Fshop1.phinf.naver.net%2F20220119_215%2F1642577776483FpjHg_JPEG%2FS20220119123401343861e786a9b689d_4.jpg&type=a340',
     price: getRandom(30000, 10000),
   },
   {
@@ -480,6 +480,22 @@ const productData: Prisma.productsCreateInput[] = [
 ];
 
 async function main() {
+  const CATEGORIES = ['SENAKERS', 'T-SHIRT', 'PANTS', 'CAP', 'HOODIE'];
+  CATEGORIES.forEach(async (c, i) => {
+    const product = await prisma.categories.upsert({
+      where: {
+        id: i + 1,
+      },
+      update: {
+        name: c,
+      },
+      create: {
+        name: c,
+      },
+    });
+    console.log(`Upsert category id: ${product.id}`);
+  });
+
   await prisma.products.deleteMany({});
 
   for (const p of productData) {
