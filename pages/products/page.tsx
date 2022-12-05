@@ -1,13 +1,15 @@
 import { categories, products } from '@prisma/client';
 import Image from 'next/image';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Input, Pagination, SegmentedControl, Select } from '@mantine/core';
 import { CATEGORY_MAP, FILTERS, TAKE } from 'constants/products';
 import { IconSearch } from '@tabler/icons';
 import useDebounce from 'hooks/useDebounce';
 import { useQuery } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
 
 export default function Products() {
+  const { data: session } = useSession();
   const [activePage, setPage] = useState(1);
   // const [total, setTotal] = useState(0);
   // const [categories, setCategories] = useState<categories[]>([]);
@@ -92,6 +94,7 @@ export default function Products() {
 
   return (
     <div className="px-36 mt-36 mb-36">
+      {session && <p>안녕하세요. {session.user?.name}님</p>}
       <div className="mb-4">
         <Input
           icon={<IconSearch />}
@@ -155,4 +158,7 @@ export default function Products() {
       </div>
     </div>
   );
+}
+function userSession(): { data: any } {
+  throw new Error('Function not implemented.');
 }
