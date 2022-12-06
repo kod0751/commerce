@@ -33,6 +33,7 @@ export default async function handler(
     res.status(200).json({ items: [], message: 'no Session' });
     return;
   }
+
   try {
     const wishlist = await getWishlist(String(session.id));
     res.status(200).json({ items: wishlist, message: 'Success' });

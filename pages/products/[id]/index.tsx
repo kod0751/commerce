@@ -26,7 +26,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   };
 }
 
-const WiSHLIST_QUERY_KEY = 'api/get-wishlist';
+const WiSHLIST_QUERY_KEY = '/api/get-wishlist';
 
 export default function Products(props: {
   product: products & { images: string[] };
