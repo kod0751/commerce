@@ -52,7 +52,7 @@ export default function Products(props: {
       .then((data) => data.items)
   );
 
-  const { mutate } = useMutation(
+  const { mutate } = useMutation<unknown, unknown, string, any>(
     (productId) =>
       fetch('/api/update-wishlist', {
         method: 'POST',
@@ -63,7 +63,27 @@ export default function Products(props: {
         .then((data) => data.json())
         .then((res) => res.items),
     {
-      // onMutate: async (productId) => {},
+      onMutate: async (productId) => {
+        await queryClient.cancelQueries([WiSHLIST_QUERY_KEY]);
+
+        // Snapshot the previous value
+        const previous = queryClient.getQueryData([WiSHLIST_QUERY_KEY]);
+
+        // Optimistically update to the new value
+        queryClient.setQueryData<string[]>([WiSHLIST_QUERY_KEY], (old) =>
+          old
+            ? old.includes(String(productId))
+              ? old.filter((id) => id !== String(productId))
+              : old.concat(String(productId))
+            : []
+        );
+
+        // Return a context object with the snapshotted value
+        return { previous };
+      },
+      onError: (error, _, context) => {
+        queryClient.setQueryData([WiSHLIST_QUERY_KEY], context.previous);
+      },
       onSuccess: () => {
         queryClient.invalidateQueries([WiSHLIST_QUERY_KEY]);
       },
@@ -84,7 +104,6 @@ export default function Products(props: {
           <div style={{ maxWidth: 600, marginRight: 52 }}>
             <Carousel
               animation="fade"
-              autoplay
               withoutControls
               wrapAround
               speed={10}
@@ -120,13 +139,14 @@ export default function Products(props: {
             <div className="text-lg">
               {product.price.toLocaleString('ko-kr')}원
             </div>
-            <>{wishlist}</>
             <Button
+              // loading={isLoading}
+              disabled={wishlist == null}
               leftIcon={
                 isWished ? (
-                  <IconHeartbeat size={20} stroke={1.5} />
-                ) : (
                   <IconHeart size={20} stroke={1.5} />
+                ) : (
+                  <IconHeartbeat size={20} stroke={1.5} />
                 )
               }
               style={{ backgroundColor: isWished ? 'red' : 'grey' }}
