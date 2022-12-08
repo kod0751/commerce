@@ -165,6 +165,3 @@ export default function Products() {
     </div>
   );
 }
-function userSession(): { data: any } {
-  throw new Error('Function not implemented.');
-}
