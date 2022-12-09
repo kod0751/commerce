@@ -70,7 +70,7 @@ export default function Home() {
   };
 
   return (
-    <div className="px-36 mt-36 mb-36">
+    <div className="mt-36 mb-36">
       {session && <p>안녕하세요. {session.user?.name}님</p>}
       <div className="mb-4">
         <Input
@@ -111,8 +111,10 @@ export default function Home() {
                 className="rounded"
                 alt={item.name}
                 src={item.image_url ?? ''}
-                width={390}
-                height={310}
+                width={320}
+                height={340}
+                placeholder="blur"
+                blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mM0rQcAAO8Atr9XcaAAAAAASUVORK5CYII="
               />
               <div className="flex">
                 <span>{item.name}</span>

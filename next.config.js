@@ -10,6 +10,7 @@ const nextConfig = {
       'picsum.photos',
       'raw.githubusercontent.com',
       'search.pstatic.net',
+      'lh3.googleusercontent.com',
     ],
   },
 };

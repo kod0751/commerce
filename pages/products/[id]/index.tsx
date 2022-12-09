@@ -100,7 +100,7 @@ export default function Products(props: {
   return (
     <>
       {product != null && productId != null ? (
-        <div className="p-24 flex flex-row">
+        <div className="flex flex-row">
           <div style={{ maxWidth: 600, marginRight: 52 }}>
             <Carousel
               animation="fade"
@@ -114,8 +114,8 @@ export default function Products(props: {
                   key={`${url}-carousel-${idx}`}
                   src={url}
                   alt="image"
-                  width={600}
-                  height={600}
+                  width={620}
+                  height={700}
                   layout="responsive"
                 />
               ))}
@@ -123,7 +123,7 @@ export default function Products(props: {
             <div className="flex space-x-4 mt-2">
               {product.images.map((url, idx) => (
                 <div key={`${url}-thumb-${idx}`} onClick={() => setIndex(idx)}>
-                  <Image src={url} alt="iamge" width={100} height={100} />
+                  <Image src={url} alt="iamge" width={155} height={195} />
                 </div>
               ))}
             </div>
