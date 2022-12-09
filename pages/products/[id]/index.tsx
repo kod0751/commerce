@@ -1,7 +1,8 @@
-import { Button } from '@mantine/core';
+import { Button, validateJson } from '@mantine/core';
 import { products } from '@prisma/client';
-import { IconHeart, IconHeartbeat } from '@tabler/icons';
+import { IconHeart, IconHeartbeat, IconShoppingCart } from '@tabler/icons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { CountControl } from 'components/CountControl';
 import CustomEditor from 'components/Editor';
 import { CATEGORY_MAP } from 'constants/products';
 import { format } from 'date-fns';
@@ -33,6 +34,7 @@ export default function Products(props: {
 }) {
   const [index, setIndex] = useState(0);
   const { data: session } = useSession();
+  const [quantity, setQuantity] = useState<number | undefined>(1);
 
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -90,6 +92,15 @@ export default function Products(props: {
     }
   );
 
+  const validate = (type: 'cart' | 'order') => {
+    if (quantity == null) {
+      alert('최소 수량을 입력하세요');
+      return;
+    }
+
+    router.push('/cart');
+  };
+
   const product = props.product;
 
   const isWished =
@@ -139,33 +150,61 @@ export default function Products(props: {
             <div className="text-lg">
               {product.price.toLocaleString('ko-kr')}원
             </div>
-            <Button
-              // loading={isLoading}
-              disabled={wishlist == null}
-              leftIcon={
-                isWished ? (
-                  <IconHeart size={20} stroke={1.5} />
-                ) : (
-                  <IconHeartbeat size={20} stroke={1.5} />
-                )
-              }
-              style={{ backgroundColor: isWished ? 'red' : 'grey' }}
-              radius="xl"
-              size="md"
-              styles={{
-                root: { paddingRight: 14, height: 48 },
-              }}
-              onClick={() => {
-                if (session == null) {
-                  alert('로그인이 필요합니다');
-                  router.push('/auth/login');
-                  return;
+
+            <div>
+              <span className="text-lg">수량</span>
+              <CountControl value={quantity} setValue={setQuantity} />
+            </div>
+
+            <div className="flex space-x-3">
+              <Button
+                leftIcon={<IconShoppingCart size={20} stroke={1.5} />}
+                style={{ backgroundColor: 'black' }}
+                radius="xl"
+                size="md"
+                styles={{
+                  root: { paddingRight: 14, height: 48 },
+                }}
+                onClick={() => {
+                  if (session == null) {
+                    alert('로그인이 필요합니다');
+                    router.push('/auth/login');
+                    return;
+                  }
+                  validate('cart');
+                }}
+              >
+                장바구니
+              </Button>
+              <Button
+                // loading={isLoading}
+                disabled={wishlist == null}
+                leftIcon={
+                  isWished ? (
+                    <IconHeart size={20} stroke={1.5} />
+                  ) : (
+                    <IconHeartbeat size={20} stroke={1.5} />
+                  )
                 }
-                mutate(String(productId));
-              }}
-            >
-              찜하기
-            </Button>
+                style={{ backgroundColor: isWished ? 'red' : 'grey' }}
+                radius="xl"
+                size="md"
+                styles={{
+                  root: { paddingRight: 14, height: 48 },
+                }}
+                onClick={() => {
+                  if (session == null) {
+                    alert('로그인이 필요합니다');
+                    router.push('/auth/login');
+                    return;
+                  }
+                  mutate(String(productId));
+                }}
+              >
+                찜하기
+              </Button>
+            </div>
+
             <div className="text-sm text-zinc-400">
               등록: {format(new Date(product.createdAt), 'yyyy년 M월 d일')}
             </div>

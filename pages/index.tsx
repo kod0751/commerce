@@ -6,12 +6,10 @@ import { CATEGORY_MAP, FILTERS, TAKE } from 'constants/products';
 import { IconSearch } from '@tabler/icons';
 import useDebounce from 'hooks/useDebounce';
 import { useQuery } from '@tanstack/react-query';
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 
 export default function Home() {
   const router = useRouter();
-  const { data: session } = useSession();
   const [activePage, setPage] = useState(1);
 
   const [selectedCategory, setSelectedCategory] = useState<string>('-1');
@@ -71,7 +69,6 @@ export default function Home() {
 
   return (
     <div className="mt-36 mb-36">
-      {session && <p>안녕하세요. {session.user?.name}님</p>}
       <div className="mb-4">
         <Input
           icon={<IconSearch />}
