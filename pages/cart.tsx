@@ -1,4 +1,4 @@
-import { products } from '@prisma/client';
+import { Cart, products } from '@prisma/client';
 import styled from '@emotion/styled';
 import { Button } from '@mantine/core';
 import { IconRefresh, IconX } from '@tabler/icons';
@@ -9,52 +9,34 @@ import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import { CATEGORY_MAP } from 'constants/products';
 
-interface CartItem {
+interface CartItem extends Cart {
   name: string;
-  productId: number;
   price: number;
-  quantity: number;
-  amount: number;
   image_url: string;
 }
 
-export default function Cart() {
+export default function CartPage() {
   const router = useRouter();
-  const [data, setData] = useState<CartItem[]>([]);
 
-  const dilveryAmount = 5000;
+  const { data } = useQuery<{ items: Cart[] }, unknown, CartItem[]>(
+    ['/api/get-cart'],
+    () =>
+      fetch('/api/get-cart')
+        .then((res) => res.json())
+        .then((data) => data.items)
+  );
+
+  const dilveryAmount = data && data.length > 0 ? 5000 : 0;
   const discountAmount = 0;
 
   const amount = useMemo(() => {
+    if (data == null) {
+      return 0;
+    }
     return data
       .map((item) => item.amount)
       .reduce((prev, curr) => prev + curr, 0);
   }, [data]);
-
-  useEffect(() => {
-    const mockData = [
-      {
-        name: '멋드러진 신발',
-        productId: 53,
-        price: 20000,
-        quantity: 2,
-        amount: 40000,
-        image_url:
-          'https://search.pstatic.net/common/?src=http%3A%2F%2Fshop1.phinf.naver.net%2F20220925_100%2F1664070136497imIlj_JPEG%2F65205970317930798_1684824693.jpeg&type=a340',
-      },
-      {
-        name: '느낌있는 후드',
-        productId: 93,
-        price: 42800,
-        quantity: 1,
-        amount: 42800,
-        image_url:
-          'https://search.pstatic.net/common/?src=http%3A%2F%2Fshop1.phinf.naver.net%2F20220918_162%2F1663454931042AipB5_JPEG%2F64590764841458596_569392890.jpeg&type=a340',
-      },
-    ];
-
-    setData(mockData);
-  }, []);
 
   const { data: products } = useQuery<
     { items: products[] },
@@ -70,10 +52,10 @@ export default function Cart() {
 
   return (
     <div>
-      <span className="text-2xl mb-3">Cart ({data.length})</span>
+      <span className="text-2xl mb-3">Cart ({data ? data.length : 0})</span>
       <div className="flex">
         <div className="flex flex-col p-4 space-y-4 flex-1">
-          {data?.length > 0 ? (
+          {data && data.length > 0 ? (
             data.map((item, idx) => <Item key={idx} {...item} />)
           ) : (
             <div>장바구니에 아무것도 없습니다.</div>
