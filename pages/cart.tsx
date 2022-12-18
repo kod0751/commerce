@@ -55,10 +55,14 @@ export default function CartPage() {
       <span className="text-2xl mb-3">Cart ({data ? data.length : 0})</span>
       <div className="flex">
         <div className="flex flex-col p-4 space-y-4 flex-1">
-          {data && data.length > 0 ? (
-            data.map((item, idx) => <Item key={idx} {...item} />)
+          {data ? (
+            data.length > 0 ? (
+              data.map((item, idx) => <Item key={idx} {...item} />)
+            ) : (
+              <div>장바구니에 아무것도 없습니다.</div>
+            )
           ) : (
-            <div>장바구니에 아무것도 없습니다.</div>
+            <div>불러오는 중</div>
           )}
         </div>
         <div className="px-4">
