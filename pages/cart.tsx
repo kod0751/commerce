@@ -2,7 +2,7 @@ import { Cart, products } from '@prisma/client';
 import styled from '@emotion/styled';
 import { Button } from '@mantine/core';
 import { IconRefresh, IconX } from '@tabler/icons';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CountControl } from 'components/CountControl';
 import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
@@ -15,13 +15,15 @@ interface CartItem extends Cart {
   image_url: string;
 }
 
+const CART_QUERY_KEY = '/api/get-cart';
+
 export default function CartPage() {
   const router = useRouter();
 
   const { data } = useQuery<{ items: Cart[] }, unknown, CartItem[]>(
-    ['/api/get-cart'],
+    [CART_QUERY_KEY],
     () =>
-      fetch('/api/get-cart')
+      fetch(CART_QUERY_KEY)
         .then((res) => res.json())
         .then((data) => data.items)
   );
@@ -146,6 +148,7 @@ export default function CartPage() {
 
 const Item = (props: CartItem) => {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [quantity, setQuantity] = useState<number | undefined>(props.quantity);
   const [amount, setAmount] = useState<number>(props.quantity);
 
@@ -155,8 +158,46 @@ const Item = (props: CartItem) => {
     }
   }, [quantity, props.price]);
 
+  const { mutate } = useMutation<unknown, unknown, Cart, any>(
+    (item) =>
+      fetch('/api/update-cart', {
+        method: 'POST',
+        body: JSON.stringify({
+          item,
+        }),
+      })
+        .then((data) => data.json())
+        .then((res) => res.items),
+    {
+      onMutate: async (item) => {
+        await queryClient.cancelQueries([CART_QUERY_KEY]);
+
+        // Snapshot the previous value
+        const previous = queryClient.getQueryData([CART_QUERY_KEY]);
+
+        // Optimistically update to the new value
+        queryClient.setQueryData<Cart[]>([CART_QUERY_KEY], (old) =>
+          old?.filter((c) => c.id !== item.id).concat(item)
+        );
+
+        // Return a context object with the snapshotted value
+        return { previous };
+      },
+      onError: (error, _, context) => {
+        queryClient.setQueryData([CART_QUERY_KEY], context.previous);
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries([CART_QUERY_KEY]);
+      },
+    }
+  );
+
   const handleUpdate = () => {
-    alert('목록 수정');
+    if (quantity == null) {
+      alert('최소 수량을 입력하세요');
+      return;
+    }
+    mutate({ ...props, quantity: quantity, amount: props.price * quantity });
   };
 
   const handleDelete = () => {
