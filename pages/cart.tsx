@@ -158,7 +158,41 @@ const Item = (props: CartItem) => {
     }
   }, [quantity, props.price]);
 
-  const { mutate } = useMutation<unknown, unknown, Cart, any>(
+  const { mutate: deleteCart } = useMutation<unknown, unknown, number, any>(
+    (id) =>
+      fetch('/api/delete-cart', {
+        method: 'POST',
+        body: JSON.stringify({
+          id,
+        }),
+      })
+        .then((data) => data.json())
+        .then((res) => res.items),
+    {
+      onMutate: async (id) => {
+        await queryClient.cancelQueries([CART_QUERY_KEY]);
+
+        // Snapshot the previous value
+        const previous = queryClient.getQueryData([CART_QUERY_KEY]);
+
+        // Optimistically update to the new value
+        queryClient.setQueryData<Cart[]>([CART_QUERY_KEY], (old) =>
+          old?.filter((c) => c.id !== id)
+        );
+
+        // Return a context object with the snapshotted value
+        return { previous };
+      },
+      onError: (error, _, context) => {
+        queryClient.setQueryData([CART_QUERY_KEY], context.previous);
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries([CART_QUERY_KEY]);
+      },
+    }
+  );
+
+  const { mutate: updateCart } = useMutation<unknown, unknown, Cart, any>(
     (item) =>
       fetch('/api/update-cart', {
         method: 'POST',
@@ -197,11 +231,16 @@ const Item = (props: CartItem) => {
       alert('최소 수량을 입력하세요');
       return;
     }
-    mutate({ ...props, quantity: quantity, amount: props.price * quantity });
+    updateCart({
+      ...props,
+      quantity: quantity,
+      amount: props.price * quantity,
+    });
   };
 
-  const handleDelete = () => {
-    alert('목록 삭제');
+  const handleDelete = async () => {
+    await deleteCart(props.id);
+    alert(`장바구니에서 ${props.name} 삭제`);
   };
 
   return (
