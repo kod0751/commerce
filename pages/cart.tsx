@@ -15,7 +15,7 @@ interface CartItem extends Cart {
   image_url: string;
 }
 
-const CART_QUERY_KEY = '/api/get-cart';
+export const CART_QUERY_KEY = '/api/get-cart';
 
 export default function CartPage() {
   const router = useRouter();

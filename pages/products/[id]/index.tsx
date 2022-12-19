@@ -12,6 +12,7 @@ import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import Carousel from 'nuka-carousel';
+import { CART_QUERY_KEY } from 'pages/cart';
 import { useEffect, useState } from 'react';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
@@ -97,30 +98,41 @@ export default function Products(props: {
     unknown,
     Omit<Cart, 'id' | 'userId'>,
     any
-  >((item) =>
-    fetch('/api/add-cart', {
-      method: 'POST',
-      body: JSON.stringify({
-        item,
-      }),
-    })
-      .then((data) => data.json())
-      .then((res) => res.items)
+  >(
+    (item) =>
+      fetch('/api/add-cart', {
+        method: 'POST',
+        body: JSON.stringify({
+          item,
+        }),
+      })
+        .then((data) => data.json())
+        .then((res) => res.items),
+    {
+      onMutate: () => {
+        queryClient.invalidateQueries([CART_QUERY_KEY]);
+      },
+      onSuccess: () => {
+        router.push('/cart');
+      },
+    }
   );
 
   const product = props.product;
 
-  const validate = async (type: 'cart' | 'order') => {
+  const validate = (type: 'cart' | 'order') => {
     if (quantity == null) {
       alert('최소 수량을 입력하세요');
       return;
     }
-    await addCart({
-      productId: product.id,
-      quantity: quantity,
-      amount: product.price * quantity,
-    });
-    router.push('/cart');
+
+    if (type === 'cart') {
+      addCart({
+        productId: product.id,
+        quantity: quantity,
+        amount: product.price * quantity,
+      });
+    }
   };
 
   const isWished =
