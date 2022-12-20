@@ -1,5 +1,5 @@
 import { Button, validateJson } from '@mantine/core';
-import { Cart, products } from '@prisma/client';
+import { Cart, OrderItem, products } from '@prisma/client';
 import { IconHeart, IconHeartbeat, IconShoppingCart } from '@tabler/icons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CountControl } from 'components/CountControl';
@@ -13,6 +13,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import Carousel from 'nuka-carousel';
 import { CART_QUERY_KEY } from 'pages/cart';
+import { ORDER_QUERY_KEY } from 'pages/my';
 import { useEffect, useState } from 'react';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
@@ -118,6 +119,31 @@ export default function Products(props: {
     }
   );
 
+  const { mutate: addOrder } = useMutation<
+    unknown,
+    unknown,
+    Omit<OrderItem, 'id'>[],
+    any
+  >(
+    (items) =>
+      fetch('/api/add-order', {
+        method: 'POST',
+        body: JSON.stringify({
+          items,
+        }),
+      })
+        .then((data) => data.json())
+        .then((res) => res.items),
+    {
+      onMutate: () => {
+        queryClient.invalidateQueries([ORDER_QUERY_KEY]);
+      },
+      onSuccess: () => {
+        router.push('/my');
+      },
+    }
+  );
+
   const product = props.product;
 
   const validate = (type: 'cart' | 'order') => {
@@ -132,6 +158,16 @@ export default function Products(props: {
         quantity: quantity,
         amount: product.price * quantity,
       });
+    }
+    if (type === 'order') {
+      addOrder([
+        {
+          productId: product.id,
+          quantity: quantity,
+          price: product.price,
+          amount: product.price * quantity,
+        },
+      ]);
     }
   };
 
@@ -236,7 +272,24 @@ export default function Products(props: {
                 찜하기
               </Button>
             </div>
-
+            <Button
+              style={{ backgroundColor: 'black' }}
+              radius="xl"
+              size="md"
+              styles={{
+                root: { paddingRight: 14, height: 48 },
+              }}
+              onClick={() => {
+                if (session == null) {
+                  alert('로그인이 필요합니다');
+                  router.push('/auth/login');
+                  return;
+                }
+                validate('order');
+              }}
+            >
+              구매하기
+            </Button>
             <div className="text-sm text-zinc-400">
               등록: {format(new Date(product.createdAt), 'yyyy년 M월 d일')}
             </div>
