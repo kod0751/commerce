@@ -34,6 +34,7 @@ export default function CommentItem({ item }: { item: CommentItemType }) {
             convertFromRaw(JSON.parse(item.contents ?? ''))
           )}
           readOnly
+          noPadding
         />
       </div>
     </Wrapper>
