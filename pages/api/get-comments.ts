@@ -24,7 +24,9 @@ async function getComments(productId: number) {
           orderItemId: orderItem.id,
         },
       });
-      response.push({ ...orderItems, ...res });
+      if (res) {
+        response.push({ ...orderItems, ...res });
+      }
     }
 
     console.log(response);
