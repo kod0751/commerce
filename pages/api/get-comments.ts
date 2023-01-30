@@ -25,7 +25,7 @@ async function getComments(productId: number) {
         },
       });
       if (res) {
-        response.push({ ...orderItems, ...res });
+        response.push({ ...orderItem, ...res });
       }
     }
 

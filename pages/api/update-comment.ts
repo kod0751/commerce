@@ -63,7 +63,7 @@ export default async function handler(
       userId: String(session.id),
       orderItemId: orderItemId,
       rate: rate,
-      content: contents,
+      contents: contents,
     });
     res.status(200).json({ items: wishlist, message: 'Success' });
   } catch (error) {
