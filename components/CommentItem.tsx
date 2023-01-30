@@ -21,8 +21,8 @@ export default function CommentItem({ item }: { item: CommentItemType }) {
               ))}
             </div>
             <span className="text-zinc-300 text-xs">
-              {/* {item.price.toLocaleString('ko-kr')} 원 * {item.quantity} 개 ={''} */}
-              {/* {item.amount.toLocaleString('ko-kr')} 원 */}
+              {item.price.toLocaleString('ko-kr')} 원 * {item.quantity} 개 ={''}
+              {item.amount.toLocaleString('ko-kr')} 원
             </span>
           </div>
           <p className="text-zinc-500 ml-auto">
