@@ -67,12 +67,61 @@ export default function MyPage() {
 }
 
 const DetailItem = (props: OrderDetail) => {
+  const queryClient = useQueryClient();
+  const { mutate: updateOrderStatus } = useMutation<
+    unknown,
+    unknown,
+    number,
+    any
+  >(
+    (status) =>
+      fetch('/api/update-order-status', {
+        method: 'POST',
+        body: JSON.stringify({
+          id: props.id,
+          status: status,
+          userId: props.userId,
+        }),
+      })
+        .then((data) => data.json())
+        .then((res) => res.items),
+    {
+      onMutate: async (status) => {
+        await queryClient.cancelQueries([ORDER_QUERY_KEY]);
+
+        // Snapshot the previous value
+        const previous = queryClient.getQueryData([ORDER_QUERY_KEY]);
+
+        // Optimistically update to the new value
+        queryClient.setQueryData<Cart[]>([ORDER_QUERY_KEY], (old) =>
+          old?.map((c) => {
+            if (c.id === props.id) {
+              return { ...c, status: status };
+            }
+            return c;
+          })
+        );
+
+        // Return a context object with the snapshotted value
+        return { previous };
+      },
+      onError: (error, _, context) => {
+        queryClient.setQueryData([ORDER_QUERY_KEY], context.previous);
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries([ORDER_QUERY_KEY]);
+      },
+    }
+  );
+
   const handlePayment = () => {
     //주문상태 5로 바꿔주기
+    updateOrderStatus(5);
   };
 
   const handleCancle = () => {
     //주문상태 -1로 바꿔주기
+    updateOrderStatus(-1);
   };
 
   return (
@@ -81,10 +130,10 @@ const DetailItem = (props: OrderDetail) => {
       style={{ border: '1px solid grey' }}
     >
       <div className="flex">
-        <Badge color={props.status === 0 ? 'red' : ''} className="mb-2">
+        <Badge color={props.status < 1 ? 'red' : ''} className="mb-2">
           {ORDER_STATUS_MAP[props.status + 1]}
         </Badge>
-        <IconX className="ml-auto" />
+        <IconX className="ml-auto" onClick={handleCancle} />
       </div>
 
       {props.orderItems.map((orderItem, idx) => (
@@ -112,7 +161,10 @@ const DetailItem = (props: OrderDetail) => {
             주문일자:{' '}
             {format(new Date(props.createdAt), 'yyyy년 M월 d일 HH:mm:ss')}
           </span>
-          <Button style={{ backgroundColor: 'black', color: 'white' }}>
+          <Button
+            style={{ backgroundColor: 'black', color: 'white' }}
+            onClick={handlePayment}
+          >
             결제 처리
           </Button>
         </div>
