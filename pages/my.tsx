@@ -67,6 +67,14 @@ export default function MyPage() {
 }
 
 const DetailItem = (props: OrderDetail) => {
+  const handlePayment = () => {
+    //주문상태 5로 바꿔주기
+  };
+
+  const handleCancle = () => {
+    //주문상태 -1로 바꿔주기
+  };
+
   return (
     <div
       className="w-full flex flex-col p-4 rounded-md"

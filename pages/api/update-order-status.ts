@@ -1,35 +1,18 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { PrismaClient } from '@prisma/client';
+import { Cart, PrismaClient } from '@prisma/client';
 import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from './auth/[...nextauth]';
 
 const prisma = new PrismaClient();
 
-async function updateComment({
-  userId,
-  orderItemId,
-  rate,
-  contents,
-}: {
-  userId: string;
-  orderItemId: number;
-  rate: number;
-  contents: string;
-}) {
+async function updateOrderStatus(id: number, status: number) {
   try {
-    const response = await prisma.comment.upsert({
+    const response = await prisma.orders.update({
       where: {
-        orderItemId,
+        id: id,
       },
-      update: {
-        contents,
-        rate,
-      },
-      create: {
-        userId,
-        orderItemId,
-        contents,
-        rate,
+      data: {
+        status: status,
       },
     });
 
@@ -52,19 +35,16 @@ export default async function handler(
 ) {
   const session = await unstable_getServerSession(req, res, authOptions);
 
-  const { orderItemId, rate, contents } = JSON.parse(req.body);
+  const { id, status, userId } = JSON.parse(req.body);
 
-  if (session == null) {
-    res.status(200).json({ items: [], message: 'no Session' });
+  if (session == null || session.id !== userId) {
+    res
+      .status(200)
+      .json({ items: [], message: 'no Session or Invalid Session' });
     return;
   }
   try {
-    const wishlist = await updateComment({
-      userId: String(session.id),
-      orderItemId: orderItemId,
-      rate: rate,
-      contents: contents,
-    });
+    const wishlist = await updateOrderStatus(id, status);
     res.status(200).json({ items: wishlist, message: 'Success' });
   } catch (error) {
     res.status(400).json({ message: 'Failed' });
