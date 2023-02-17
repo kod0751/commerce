@@ -29,13 +29,13 @@ export default function CommentItem({ item }: { item: CommentItemType }) {
             {format(new Date(item.updatedAt), 'yyyy년 M월 d일')}
           </p>
         </div>
-        {/* <CustomEditor
+        <CustomEditor
           editorState={EditorState.createWithContent(
             convertFromRaw(JSON.parse(item.contents ?? ''))
           )}
           readOnly
           noPadding
-        /> */}
+        />
       </div>
     </Wrapper>
   );
