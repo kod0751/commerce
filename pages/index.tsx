@@ -7,6 +7,7 @@ import { IconSearch } from '@tabler/icons';
 import useDebounce from 'hooks/useDebounce';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
+import Button from 'components/Button';
 
 export default function Home() {
   const router = useRouter();
@@ -72,7 +73,7 @@ export default function Home() {
       <div className="mb-4">
         <Input
           icon={<IconSearch />}
-          placeholder="Your email"
+          placeholder="상품명"
           value={keyword}
           onChange={handleChange}
         />
@@ -135,6 +136,9 @@ export default function Home() {
             total={total}
           />
         )}
+      </div>
+      <div className=" w-full mt-5">
+        <Button onClick={() => router.push('/upload')}>상품 업로드</Button>
       </div>
     </div>
   );
